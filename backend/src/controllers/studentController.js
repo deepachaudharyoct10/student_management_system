@@ -1,4 +1,5 @@
 const pool = require('../config/db');
+const uploadToCloudinary = require('../config/cloudinary');
 
 // Generate unique admission number: ADM-YYYY-XXXX
 const generateAdmissionNumber = async () => {
@@ -57,7 +58,6 @@ const createStudent = async (req, res) => {
   try {
     const { name, course, year, date_of_birth, email, mobile_number, gender, address } = req.body;
 
-    // Validation
     if (!name || !course || !year || !date_of_birth || !email || !mobile_number || !gender || !address) {
       return res.status(400).json({ success: false, message: 'All fields are required' });
     }
@@ -73,7 +73,11 @@ const createStudent = async (req, res) => {
     }
 
     const admission_number = await generateAdmissionNumber();
-    const photo_url = req.file ? `/uploads/${req.file.filename}` : null;
+
+    let photo_url = null;
+    if (req.file) {
+      photo_url = await uploadToCloudinary(req.file.buffer);
+    }
 
     const result = await pool.query(
       `INSERT INTO students
@@ -108,13 +112,15 @@ const updateStudent = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Mobile number must be 10 digits' });
     }
 
-    // Check if a new photo was uploaded
     const existing = await pool.query('SELECT photo_url FROM students WHERE id = $1', [req.params.id]);
     if (existing.rows.length === 0) {
       return res.status(404).json({ success: false, message: 'Student not found' });
     }
 
-    const photo_url = req.file ? `/uploads/${req.file.filename}` : existing.rows[0].photo_url;
+    let photo_url = existing.rows[0].photo_url;
+    if (req.file) {
+      photo_url = await uploadToCloudinary(req.file.buffer);
+    }
 
     const result = await pool.query(
       `UPDATE students SET
