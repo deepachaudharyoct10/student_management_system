@@ -1,26 +1,21 @@
 const multer = require('multer');
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
-const cloudinary = require('cloudinary').v2;
-require('dotenv').config();
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+const storage = multer.memoryStorage();
 
-const storage = new CloudinaryStorage({
-  cloudinary,
-  params: {
-    folder: 'student-management',
-    allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
-    transformation: [{ width: 400, height: 400, crop: 'fill' }],
-  },
-});
+const fileFilter = (req, file, cb) => {
+  const allowedTypes = /jpeg|jpg|png|webp/;
+  const isValid = allowedTypes.test(file.mimetype);
+  if (isValid) {
+    cb(null, true);
+  } else {
+    cb(new Error('Only image files (jpeg, jpg, png, webp) are allowed'));
+  }
+};
 
 const upload = multer({
   storage,
   limits: { fileSize: 2 * 1024 * 1024 },
+  fileFilter,
 });
 
 module.exports = upload;
