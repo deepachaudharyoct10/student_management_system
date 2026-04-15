@@ -9,6 +9,8 @@ const initDb = require('./config/initDb');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+console.log('[SERVER] WEB-09 booting, NODE_ENV:', process.env.NODE_ENV);
+
 // Middleware
 app.use(cors());
 app.use(express.json());
