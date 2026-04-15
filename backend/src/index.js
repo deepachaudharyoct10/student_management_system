@@ -25,8 +25,15 @@ app.get('/', (req, res) => {
   res.json({ message: 'Student Management API is running' });
 });
 
-// Start server
-app.listen(PORT, async () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-  await initDb();
-});
+// Initialize DB table then start server (local dev)
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, async () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+    await initDb();
+  });
+} else {
+  // On Vercel, init DB on first request
+  initDb();
+}
+
+module.exports = app;
