@@ -73,7 +73,7 @@ const createStudent = async (req, res) => {
     }
 
     const admission_number = await generateAdmissionNumber();
-    const photo_url = req.file ? `/uploads/${req.file.filename}` : null;
+    const photo_url = req.file ? req.file.path : null;
 
     const result = await pool.query(
       `INSERT INTO students
@@ -114,7 +114,7 @@ const updateStudent = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Student not found' });
     }
 
-    const photo_url = req.file ? `/uploads/${req.file.filename}` : existing.rows[0].photo_url;
+    const photo_url = req.file ? req.file.path : existing.rows[0].photo_url;
 
     const result = await pool.query(
       `UPDATE students SET
