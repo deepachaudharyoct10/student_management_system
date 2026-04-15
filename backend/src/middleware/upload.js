@@ -1,6 +1,7 @@
 const multer = require('multer');
 
 const storage = multer.memoryStorage();
+console.log('[Upload] Using storage type:', storage.constructor.name || 'memoryStorage');
 
 const fileFilter = (req, file, cb) => {
   const allowedTypes = /jpeg|jpg|png|webp/;
